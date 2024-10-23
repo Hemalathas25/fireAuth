@@ -1,3 +1,6 @@
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "./firebase";
+import {setDoc, doc} from "firebase/firestore";
 import React,{ useState } from "react";
 import { toast } from "react-toastify";
 
@@ -7,13 +10,45 @@ function Register() {
     const [fname, setFname] = useState("");
     const [lname, setLname] = useState("");
 
+const handleRegister = async (e) => {
+    e.preventDefault();
+
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        const user = auth.currentUser;
+        console.log(user);
+        if (user) {
+            await setDoc(doc(db, "Users", user.uid), {
+                email: user.email,
+                firstName: fname,
+                lastName: lname,
+            });
+        }
+
+        console.log ("User Registered successfully!!" );
+        toast.success("User Registered successfully!!", {
+            position: "top-center",
+        });
+
+    } catch (error) {
+
+       if (error.code === 'auth/email-already-in-use'){
+       } else {
+        console.log(error.message);
+        toast.success(error.message, {
+            position: "top-center",
+        })
+       }
+    }
+}
+
 return (
 
-    <form>
+    <form onSubmit={handleRegister}>
     <h3>Sign Up</h3>
 
     <div className="mb-3">
-        <label>first name</label>
+        <label>First name</label>
         <input
             type="text"
             className="form-control"
@@ -34,7 +69,7 @@ return (
     </div>
 
     <div className="mb-3">
-        <label>Email address</label>
+        <label>Email Address</label>
         <input
             type="email"
             className="form-control"
