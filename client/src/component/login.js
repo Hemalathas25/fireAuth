@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify"; 
+import 'react-toastify/dist/ReactToastify.css'; 
 
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase"
+import { auth } from "./firebase";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -14,54 +15,60 @@ function Login() {
             await signInWithEmailAndPassword(auth, email, password);
             console.log("User logged in Successfully");
             toast.success("User logged in Successfully", {
-                position: "top-right"
+                position: "top-right",
+                autoClose: 3000, 
             });
+            window.location.href = "/profile";
         } catch (error) {
             console.log(error.message);
-
-            toast.success(error.message, {
-                position: "top-right"
-            })
+            toast.error(error.message, {  
+                position: "top-right",
+                autoClose: 3000,
+            });
         }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h3>Login</h3>
+        <div>
+            <form onSubmit={handleSubmit}>
+                <h3>Login</h3>
 
-            <div className="mb-3">
-                <label>Email Address</label>
-                <input 
-                    type="email"
-                    className="form-control"
-                    placeholder="Enter email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-            </div>
+                <div className="mb-3">
+                    <label>Email Address</label>
+                    <input 
+                        type="email"
+                        className="form-control"
+                        placeholder="Enter email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                </div>
 
-            <div className="mb-3">
-                <label>Password</label>
-                <input 
-                    type="password"
-                    className="form-control"
-                    placeholder="Enter password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-            </div>
+                <div className="mb-3">
+                    <label>Password</label>
+                    <input 
+                        type="password"
+                        className="form-control"
+                        placeholder="Enter password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
 
-            <div className="d-grid">
-                <button type="submit" className="btn btn-primary">
-                    Submit
-                </button>
-            </div>
+                <div className="d-grid">
+                    <button type="submit" className="btn btn-primary">
+                        Submit
+                    </button>
+                </div>
 
-            <p className="forgot-password text-right">
-                New user <a href="/register">Register Here</a>
-            </p>            
-        </form>
-    )
+                <p className="forgot-password text-right">
+                    New user? <a href="/register">Register Here</a>
+                </p>            
+            </form>
+
+            <ToastContainer />
+        </div>
+    );
 }
 
 export default Login;

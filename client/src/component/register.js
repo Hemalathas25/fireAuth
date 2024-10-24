@@ -2,7 +2,10 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "./firebase";
 import {setDoc, doc} from "firebase/firestore";
 import React,{ useState } from "react";
-import { toast } from "react-toastify";
+
+import { toast, ToastContainer } from "react-toastify"; 
+import 'react-toastify/dist/ReactToastify.css'; 
+
 
 function Register() {
     const [email, setEmail] = useState("");
@@ -28,7 +31,8 @@ const handleRegister = async (e) => {
         console.log ("User Registered successfully!!" );
         toast.success("User Registered successfully!!", {
             position: "top-right",
-        });
+            autoClose: 3000,
+        }); 
 
     } catch (error) {
 
@@ -37,13 +41,14 @@ const handleRegister = async (e) => {
         console.log(error.message);
         toast.success(error.message, {
             position: "top-right",
-        })
+            autoClose: 3000,
+        });
        }
     }
 }
 
 return (
-
+    <div>
     <form onSubmit={handleRegister}>
     <h3>Sign Up</h3>
 
@@ -100,6 +105,8 @@ return (
         Already registered <a href="/login">Login</a>
     </p>
     </form>
+    <ToastContainer />
+    </div>
   );
 }
 
