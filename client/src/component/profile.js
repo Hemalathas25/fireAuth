@@ -1,75 +1,72 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { toast, ToastContainer } from "react-toastify"; 
-import 'react-toastify/dist/ReactToastify.css'; 
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
     const [userDetails, setUserDetails] = useState(null);
+    const [loading, setLoading] = useState(true); // Add loading state
+    const navigate = useNavigate(); // Use useNavigate for redirection
 
-    const fetchUserData = async () => {
-        auth.onAuthStateChanged(async (user) => {
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // User is logged in, fetch the user details from Firestore
-                console.log(user);
                 const docRef = doc(db, "Users", user.uid);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
                     setUserDetails(docSnap.data());
-                    console.log(docSnap.data());
                 } else {
                     console.log("No such document!");
                 }
             } else {
-                // No user is logged in
                 console.log("User is not logged in");
             }
+            setLoading(false); // Set loading to false after user data is fetched
         });
-    };
 
-    useEffect(() => {
-        fetchUserData();
+        return () => unsubscribe(); // Cleanup on unmount
     }, []);
 
-    async function handleLogout() {
+    const handleLogout = async () => {
         try {
             await auth.signOut();
-            window.location.href = "./login"; // Redirect to login page after logging out
-            console.log("User logged out successfully!");
-            toast.success("User logged out Successfully", {
-                position: "top-right",
-                autoClose: 3000,
-            });
+            navigate("/login"); // Navigate to login page after logout
         } catch (error) {
             console.error("Error logging out:", error.message);
-            toast.error(error.message, {
-                position: "top-right",
-                autoClose: 3000,
-            });
         }
+    };
+
+    if (loading) {
+        return <p>Loading...</p>; // Show loading while fetching data
     }
 
     return (
-      <div>
-        {userDetails ? (
-            <>
-                <h3>Welcome {userDetails.firstName}</h3>
-                <div>
-                    <p>Email: {userDetails.email}</p>
-                    <p>Firstname: {userDetails.firstName}</p>
-                </div>
-                <button className="btn btn-primary" onClick={handleLogout}>
-                    Logout
-                </button>
-            </>
-        ) : (
-            <p>Loading...</p>
-        )}
-        <ToastContainer />
-      </div>
+        <div>
+            {userDetails ? (
+                <>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        <img
+                            src={userDetails.photo}
+                            width={"40%"}
+                            style={{ borderRadius: "50%" }}
+                            alt="User profile"
+                        />
+                    </div>
+                    <h3>Welcome {userDetails.firstName}</h3>
+                    <div>
+                        <p>Email: {userDetails.email}</p>
+                        <p>First Name: {userDetails.firstName}</p>
+                    </div>
+                    <button className="btn btn-primary" onClick={handleLogout}>
+                        Logout
+                    </button>
+                </>
+            ) : (
+                <p>No user details available.</p>
+            )}
+        </div>
     );
 }
 
 export default Profile;
-

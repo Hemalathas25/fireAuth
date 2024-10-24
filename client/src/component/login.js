@@ -4,24 +4,52 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
+import { useNavigate } from "react-router-dom"; // useNavigate for navigation
+
+import SignInWithGoogle from "./signInWithGoogle";
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate(); // Initialize useNavigate hook
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!email || !password) {
+            toast.error("Please fill in all fields", {
+                position: "top-right",
+                autoClose: 3000,
+            });
+            return;
+        }
+
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            console.log("User logged in Successfully");
-            toast.success("User logged in Successfully", {
+            console.log("User logged in successfully");
+            toast.success("User logged in successfully", {
                 position: "top-right",
-                autoClose: 3000, 
+                autoClose: 3000,
             });
-            window.location.href = "/profile";
+            navigate("/profile"); // Use navigate instead of window.location.href
         } catch (error) {
             console.log(error.message);
-            toast.error(error.message, {  
+            // Display user-friendly error messages
+            let errorMsg;
+            switch (error.code) {
+                case "auth/user-not-found":
+                    errorMsg = "No user found with this email.";
+                    break;
+                case "auth/wrong-password":
+                    errorMsg = "Incorrect password. Please try again.";
+                    break;
+                case "auth/invalid-email":
+                    errorMsg = "Invalid email format.";
+                    break;
+                default:
+                    errorMsg = "Login failed. Please try again.";
+            }
+            toast.error(errorMsg, {
                 position: "top-right",
                 autoClose: 3000,
             });
@@ -41,6 +69,7 @@ function Login() {
                         placeholder="Enter email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        required // Basic form validation
                     />
                 </div>
 
@@ -52,6 +81,7 @@ function Login() {
                         placeholder="Enter password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        required // Basic form validation
                     />
                 </div>
 
@@ -63,7 +93,8 @@ function Login() {
 
                 <p className="forgot-password text-right">
                     New user? <a href="/register">Register Here</a>
-                </p>            
+                </p>        
+                <SignInWithGoogle />    
             </form>
 
             <ToastContainer />

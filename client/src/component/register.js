@@ -25,6 +25,7 @@ const handleRegister = async (e) => {
                 email: user.email,
                 firstName: fname,
                 lastName: lname,
+                photo:""
             });
         }
 
