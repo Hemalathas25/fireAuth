@@ -1,12 +1,32 @@
 import React, { useState } from "react";
-//import { toast } from "react-toastify";
+import { toast } from "react-toastify";
+
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebase"
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            console.log("User logged in Successfully");
+            toast.success("User logged in Successfully", {
+                position: "top-right"
+            });
+        } catch (error) {
+            console.log(error.message);
+
+            toast.success(error.message, {
+                position: "top-right"
+            })
+        }
+    };
+
     return (
-        <form>
+        <form onSubmit={handleSubmit}>
             <h3>Login</h3>
 
             <div className="mb-3">

@@ -27,7 +27,7 @@ const handleRegister = async (e) => {
 
         console.log ("User Registered successfully!!" );
         toast.success("User Registered successfully!!", {
-            position: "top-center",
+            position: "top-right",
         });
 
     } catch (error) {
@@ -36,7 +36,7 @@ const handleRegister = async (e) => {
        } else {
         console.log(error.message);
         toast.success(error.message, {
-            position: "top-center",
+            position: "top-right",
         })
        }
     }
